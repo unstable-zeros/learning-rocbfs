@@ -18,6 +18,9 @@ from core.data.images import loader
 from core.utils.meters import AverageMeter
 from core.data.load import get_bdy_states_rknn
 
+DIRNAME = 'perception-ckpts-50-epochs'
+os.makedirs(DIRNAME, exist_ok=True)
+
 def main():
 
     rng = jrand.PRNGKey(23)
@@ -46,7 +49,7 @@ def main():
         params = optax.apply_updates(params, updates)
         return loss, params, opt_state, nn_state
 
-    for epoch in range(20):
+    for epoch in range(50):
         train_loss_meter = AverageMeter('train_loss')
         test_loss_meter = AverageMeter('test_loss')
 
@@ -84,18 +87,16 @@ def _forward(images, is_training):
     return ResNet18(1, resnet_v2=True)(images, is_training)
 
 def save_checkpoint(params, nn_state):
-    dirname = 'perception-ckpts-viz'
-    os.makedirs(dirname, exist_ok=True)
-    with open(os.path.join(dirname, 'params.npy'), 'wb') as f:
+    os.makedirs(DIRNAME, exist_ok=True)
+    with open(os.path.join(DIRNAME, 'params.npy'), 'wb') as f:
         pickle.dump(params, f, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(os.path.join(dirname, 'nn_state.npy'), 'wb') as f:
+    with open(os.path.join(DIRNAME, 'nn_state.npy'), 'wb') as f:
         pickle.dump(nn_state, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 def load_checkpoint():
-    dirname = 'perception-ckpts-viz'
-    with open(os.path.join(dirname, 'params.npy'), 'rb') as f:
+    with open(os.path.join(DIRNAME, 'params.npy'), 'rb') as f:
         params = pickle.load(f)
-    with open(os.path.join(dirname, 'nn_state.npy'), 'rb') as f:
+    with open(os.path.join(DIRNAME, 'nn_state.npy'), 'rb') as f:
         nn_state = pickle.load(f)
 
     return params, nn_state
@@ -121,7 +122,7 @@ def plot_preds(all_preds, all_labels, state_df):
     ax.legend(handles=handles[0:], labels=new_labels)
     plt.subplots_adjust(bottom=0.15)
 
-    plt.savefig('perception-ckpts-viz/perception-ckpts.png')
+    plt.savefig(f'{DIRNAME}/perception-ckpts.png')
     plt.close()
 
 if __name__ == '__main__':

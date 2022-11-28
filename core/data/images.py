@@ -5,16 +5,24 @@ import torch
 import os
 import pandas as pd
 
-DATA_ROOT = 'data/carla/images/Dataset_with_image/left_turn_state_space_sampling'
+# DATA_ROOT = 'data/carla/images/Dataset_with_image/left_turn_state_space_sampling'
+# DATA_DIRS = [
+#     'random_noise_driving',
+#     'straight_lane_driving',
+#     'start_of_turn',
+#     'middle_of_turn'
+# ]
+
+# DATA_ROOT = '../../../../lejunj/PerceptionMapDataCollection/_out'
+DATA_ROOT = './'
 DATA_DIRS = [
-    'random_noise_driving',
-    'straight_lane_driving',
-    'start_of_turn',
-    'middle_of_turn'
+    'large_deviation_2022_0727_middle_turn',
+    'large_deviation_2022_0727_start_turn',
+    'large_deviation_2022_0727_start_point'
 ]
 FNAME = 'Data_Collection_Compiled.pd'
-MEAN_IMG = [142.30428901, 142.93909777, 125.39351831]
-STD_IMG = [58.4192335,  53.82467569, 61.2449872]
+# MEAN_IMG = [142.30428901, 142.93909777, 125.39351831]
+# STD_IMG = [58.4192335,  53.82467569, 61.2449872]
 
 def loader(train_bs, test_bs):
     train_data = CarlaDataset(labels=['cte'], train=True)
@@ -38,6 +46,7 @@ class CarlaDataset(Dataset):
         # data = data.head(1000)
 
         self.images = np.stack(data['front_camera_image'].to_numpy(), axis=0)
+        print(self.images.shape)
         self.states = data[['speed(m/s)', 'theta_e', 'd']]
         self.labels = data[labels].to_numpy().reshape(len(data),)
 
@@ -45,7 +54,8 @@ class CarlaDataset(Dataset):
         return len(self.labels)
 
     def __getitem__(self, index):
-        return self._normalize(self.images[index]), self.labels[index]
+        # return self._normalize(self.images[index]), self.labels[index]
+        return self.images[index].astype(np.float32), self.labels[index]
 
     @staticmethod
     def _read():
