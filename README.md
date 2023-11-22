@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 python learning_cte.py
 ```
-## Training Perception-based CBF
+## Training Perception-based ROCBF
 ```
 bash launch_image_data.sh
 ```
