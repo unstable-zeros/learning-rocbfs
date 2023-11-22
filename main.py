@@ -7,6 +7,7 @@ import jax.nn as jnn
 import wandb
 import os
 import pickle
+import matplotlib.pyplot as plt
 
 from core.utils.parse_args import parse_args
 from core.utils.viz import Visualizer
@@ -15,15 +16,13 @@ from core.losses.new_cbf_loss import CBFLoss
 from core.output_maps.pos_to_velocity import PosToVelocity
 from core.output_maps.img_to_cte import ImgToCTE
 from core.dynamics.carla_4state import CarlaDynamics
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 def main(args):
-
-    wandb.init(project='ROCBF', entity='robey')
     config = wandb.config
     config.n_epochs = args.n_epochs
     config.learning_rate = args.learning_rate
     config.dual_step_size = args.dual_step_size
-
     key_seq = hk.PRNGSequence(23)
     
     # output_map = PosToVelocity()
@@ -48,6 +47,8 @@ def main(args):
     opt_state = opt_init(params)
     
     loss = PrimalDualLoss.loss_fn(params, data_dict)
+    losses_over_steps = []
+    steps = []
 
     for step in range(args.n_epochs):
 
@@ -59,6 +60,9 @@ def main(args):
 
         # dual step
         diffs = PrimalDualLoss.diffs_fn(params, data_dict)
+        losses_over_steps.append(loss.item())
+        steps.append(step)
+
         for key in dual_vars.keys():
             dv = dual_vars[key]
             if args.dual_scheme == 'avg':
@@ -94,6 +98,16 @@ def main(args):
             fname = os.path.join(args.results_path, 'trained_cbf.npy')
             with open(fname, 'wb') as handle:
                 pickle.dump(params, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        df_losses = pd.DataFrame({f'{key}_loss': [losses[key]] for key in losses.keys()})
+        df_losses.to_csv(os.path.join(args.results_path, f'losses_.txt'), sep='\t', index=False)
+        plt.figure(figsize=(12, 6))  # Set the figure size to a larger size
+        plt.plot(steps, losses_over_steps)
+        plt.xlabel('Step')
+        plt.ylabel('Loss')
+        plt.title(f'Loss over Steps')
+        plt.xticks(range(0, args.n_epochs + 1, 100), rotation='vertical')  # Add more x-axis ticks
+        plt.savefig(os.path.join(args.results_path, f'loss_plot_.png'))
+        plt.close()
 
     wandb.finish()
 

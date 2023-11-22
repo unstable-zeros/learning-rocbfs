@@ -26,6 +26,7 @@ export DELTA_F=0.1
 export DELTA_G=0.1
 
 # Output map
+# Choose the best LIP_CONST_1 & 2 based on your case
 export LIP_CONST_1=0.1
 export LIP_CONST_2=0.1
 
@@ -46,7 +47,6 @@ export N_SAMP_SAFE=0
 export N_SAMP_ALL=0
 
 
-export CUDA_VISIBLE_DEVICES=3
 python main.py \
     --system $SYSTEM --data-path $DATA_PATH_1 $DATA_PATH_2 $DATA_PATH_3 $DATA_PATH_4 \
     --results-path $RESULTS_PATH \

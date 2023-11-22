@@ -18,6 +18,8 @@ from core.data.images import loader
 from core.utils.meters import AverageMeter
 from core.data.load import get_bdy_states_rknn
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 DIRNAME = 'perception-ckpts-50-epochs'
 os.makedirs(DIRNAME, exist_ok=True)
 
@@ -48,7 +50,7 @@ def main():
         updates, opt_state = opt_update(grad, opt_state, params)
         params = optax.apply_updates(params, updates)
         return loss, params, opt_state, nn_state
-
+    # We varied it between 50 - 1500 epoch
     for epoch in range(50):
         train_loss_meter = AverageMeter('train_loss')
         test_loss_meter = AverageMeter('test_loss')
@@ -82,6 +84,16 @@ def main():
         print(f'Avg training loss: {train_loss_meter.avg:.4f}\t', end='')
         print(f'Avg test loss: {test_loss_meter.avg:.4f}')
         print(f'{"-"*50}\n')
+
+        # For saving output data into a text file
+        with open(f'{DIRNAME}/output_no_crop.txt', 'a') as f:
+            output_str = f'\nFinished epoch {epoch}\n'
+            output_str += f'{"-" * 50}\n'
+            output_str += f'Avg training loss: {train_loss_meter.avg:.4f}\t'
+            output_str += f'Avg test loss: {test_loss_meter.avg:.4f}\n'
+            output_str += f'{"-"*50}\n'
+            # Write output to file
+            f.write(output_str)
 
 def _forward(images, is_training):
     return ResNet18(1, resnet_v2=True)(images, is_training)
