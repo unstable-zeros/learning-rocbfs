@@ -5,8 +5,8 @@ etils==0.8.0
 fonttools==4.38.0
 greenlet==0.4.15
 importlib-resources==5.10.0
-jax==0.3.23
-jaxlib==0.3.22+cuda11.cudnn82
+jax==0.3.2
+jaxlib==0.3.2+cuda11.cudnn82 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 kiwisolver==1.4.4
 matplotlib==3.6.2
 msgpack==0.6.2
@@ -24,3 +24,4 @@ seaborn==0.12.1
 six==1.16.0
 typing-extensions==4.4.0
 zipp==3.9.0
+wandb==0.15.0
