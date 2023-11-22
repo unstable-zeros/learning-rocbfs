@@ -1,6 +1,6 @@
 # RO-CBF
 
-##Setup the environment
+## Setup the environment
 ```
 conda create -n rocbf python=3.8.10
 conda activate rocbf
@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ```
 ## 
 
-##Training Perception Map
+## Training Perception Map
 ```
 python learning_cte.py
 ```
